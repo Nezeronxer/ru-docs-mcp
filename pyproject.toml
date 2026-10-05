@@ -1,0 +1,27 @@
+[project]
+name = "ru-docs"
+version = "0.1.0"
+description = "MCP-сервер документации российских платёжек, чеков 54-ФЗ, мессенджеров и 1С - со слоем граблей"
+readme = "README.md"
+authors = [{ name = "Nezeronxer" }]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "markdownify>=1.2.3",
+    "mcp[cli]>=2.3.0",
+    "pypdf>=6.19.0",
+    "pyyaml>=6.0.3",
+    "selectolax>=1.0.0",
+    "snowballstemmer>=3.1.1",
+]
+
+[project.scripts]
+ru-docs = "ru_docs.server:main"
+ru-docs-ingest = "ru_docs.ingest:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.12.20,<0.13.0"]
+build-backend = "uv_build"

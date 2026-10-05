@@ -1,0 +1,190 @@
+# Реестр библиотек. У библиотеки может быть несколько источников ([[library.load]]),
+# их чанки складываются. Типы: openapi, html (urls / sitemap / crawl), pdf, github (mode md|bsl|vk).
+# Не брать: Prodamus (robots Disallow: /*), its.1c.ru (ИТС), .hbk синтакс-помощника (лицензия 1С).
+
+# ---------- платёжки ----------
+
+[[library]]
+id = "yookassa"
+name = "ЮKassa"
+aliases = ["юкасса", "яндекс касса", "yookassa", "yandex kassa", "юmoney касса"]
+description = "Приём платежей ЮKassa: API v3, платежи, возвраты, чеки 54-ФЗ, вебхуки, выплаты, СБП, автоплатежи"
+homepage = "https://yookassa.ru/developers/"
+license = "документация ООО НКО «ЮМани»; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "openapi"
+  spec = "https://yookassa.ru/developers/api/yookassa-openapi-specification.yaml"
+  docs_url = "https://yookassa.ru/developers/api"
+  [[library.load]]
+  type = "html"
+  sitemap = "https://yookassa.ru/developers/sitemap.xml"
+  include = ["/developers/payment-acceptance", "/developers/using-api", "/developers/payouts", "/developers/solutions-for-platforms", "/developers/support/payments", "/developers/support/merchant"]
+  selector = "main, article"
+
+[[library]]
+id = "yoomoney"
+name = "ЮMoney (кошелёк, кнопки, формы)"
+aliases = ["юмани", "yoomoney", "яндекс деньги", "кошелёк юmoney"]
+description = "API кошелька ЮMoney, приём переводов на кошелёк, HTTP-уведомления, формы и кнопки оплаты"
+homepage = "https://yoomoney.ru/docs/wallet"
+license = "документация ООО НКО «ЮМани»; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  crawl = "https://yoomoney.ru/docs/wallet"
+  prefix = "https://yoomoney.ru/docs/"
+  max_pages = 150
+  selector = "main, article"
+
+[[library]]
+id = "tbank-eacq"
+name = "Т-Банк интернет-эквайринг (Т-Касса)"
+aliases = ["тинькофф", "tinkoff", "т-банк", "tbank", "т-касса", "tinkoff acquiring", "эквайринг тинькофф"]
+description = "API интернет-эквайринга Т-Банка: Init, GetState, Confirm, Cancel, рекуррентные платежи, Token SHA-256, нотификации, СБП"
+homepage = "https://developer.tbank.ru/eacq"
+license = "только грабли: developer.tbank.ru подписан корнем Минцифры, ему не доверяем"
+# Сырых доков нет намеренно: сайт отдаёт цепочку Russian Trusted Root CA. Полная дока - Context7
+# /websites/developer_tbank_ru_eacq или https://developer.tbank.ru/eacq/intro в браузере.
+
+[[library]]
+id = "cloudpayments"
+name = "CloudPayments"
+aliases = ["клаудпейментс", "cloud payments", "cp", "клауд"]
+description = "API CloudPayments: оплата по криптограмме, 3-D Secure, рекуррентные подписки, уведомления Check/Pay/Fail, виджет, онлайн-чеки"
+homepage = "https://developers.cloudpayments.ru/"
+license = "документация CloudPayments; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  urls = ["https://developers.cloudpayments.ru/"]
+  selector = ".content, main, body"
+
+[[library]]
+id = "robokassa"
+name = "Robokassa"
+aliases = ["робокасса", "robokassa", "робо касса"]
+description = "Robokassa: платёжный интерфейс, SignatureValue, ResultURL, фискализация Receipt, возвраты, рекуррентные, СБП QR, холдирование"
+homepage = "https://docs.robokassa.ru/"
+license = "документация Robokassa (robots.txt разрешает ИИ-краулеры); фрагменты со ссылкой"
+  [[library.load]]
+  type = "openapi"
+  spec = "https://docs.robokassa.ru/openapi/robokassa.yaml"
+  docs_url = "https://docs.robokassa.ru/ru/api-specification"
+  [[library.load]]
+  type = "html"
+  sitemap = "https://docs.robokassa.ru/sitemap.xml"
+  include = ["/ru/"]
+  selector = "article, main"
+
+[[library]]
+id = "paykeeper"
+name = "PayKeeper"
+aliases = ["пейкипер", "paykeeper", "пэйкипер"]
+description = "PayKeeper: JSON API, создание счёта, POST-оповещения о платежах, чеки, возвраты"
+homepage = "https://docs.paykeeper.ru/"
+license = "документация PayKeeper; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  crawl = "https://docs.paykeeper.ru/"
+  prefix = "https://docs.paykeeper.ru/"
+  exclude = ["/wp-content/uploads/"]
+  max_pages = 200
+  selector = "main, article, .content"
+
+[[library]]
+id = "tg-payments"
+name = "Telegram Bot Payments"
+aliases = ["оплата в телеграм", "telegram payments", "sendinvoice", "provider_token", "платежи в боте", "telegram stars"]
+description = "Платежи в Telegram-ботах: sendInvoice, pre_checkout_query, successful_payment, провайдеры (ЮKassa), Telegram Stars"
+homepage = "https://core.telegram.org/bots/payments"
+license = "Telegram; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  urls = ["https://core.telegram.org/bots/payments", "https://core.telegram.org/bots/payments-stars"]
+  selector = "#dev_page_content, main"
+
+# ---------- онлайн-чеки 54-ФЗ ----------
+
+[[library]]
+id = "atol-online"
+name = "АТОЛ Онлайн (облачная касса, 54-ФЗ)"
+aliases = ["атол", "atol", "атол онлайн", "онлайн касса", "54-фз", "фискализация"]
+description = "API АТОЛ Онлайн v4: getToken, sell, sell_refund, коррекция, статус чека, ФФД 1.05/1.2"
+homepage = "https://online.atol.ru/"
+license = "документация ООО «АТОЛ»; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "pdf"
+  url = "https://online.atol.ru/files/API_atol_online_v4.pdf"
+  title = "API АТОЛ Онлайн v4"
+
+[[library]]
+id = "orangedata"
+name = "OrangeData (облачная касса, 54-ФЗ)"
+aliases = ["оранж дата", "orange data", "orangedata"]
+description = "API OrangeData: подпись запросов RSA, документы чеков, коррекция, ФФД 1.2"
+homepage = "https://github.com/orangedata-official/API"
+license = "репозиторий OrangeData без указанной лицензии; фрагменты со ссылкой"
+  [[library.load]]
+  type = "pdf"
+  url = "https://raw.githubusercontent.com/orangedata-official/API/master/orangedata_API_Russian_ffd_1.2.pdf"
+  title = "API OrangeData ФФД 1.2"
+
+# ---------- мессенджеры ----------
+
+[[library]]
+id = "max"
+name = "МАКС (Max) Bot API"
+aliases = ["макс", "max", "max messenger", "мессенджер макс", "tamtam", "тамтам", "vk max"]
+description = "Bot API мессенджера МАКС: сообщения, inline-клавиатуры, вебхуки и long polling, загрузка файлов, чаты"
+homepage = "https://dev.max.ru/docs"
+license = "схема api-schema под Apache-2.0"
+  [[library.load]]
+  type = "openapi"
+  spec = "https://raw.githubusercontent.com/max-messenger/api-schema/main/schema.yaml"
+  docs_url = "https://dev.max.ru/docs-api"
+  [[library.load]]
+  type = "html"
+  crawl = "https://dev.max.ru/docs"
+  prefix = "https://dev.max.ru/docs"
+  max_pages = 120
+  selector = "main, article"
+
+[[library]]
+id = "vk"
+name = "VK API"
+aliases = ["вк", "вконтакте", "vk", "vkontakte", "vk api", "бот вк"]
+description = "Методы VK API (messages, groups, wall, users...): параметры, типы токенов, ошибки; Callback API и Long Poll"
+homepage = "https://dev.vk.com/"
+license = "схема vk-api-schema под MIT"
+  [[library.load]]
+  type = "github"
+  repo = "VKCOM/vk-api-schema"
+  glob = ["*/methods.json"]
+  mode = "vk"
+
+[[library]]
+id = "yandex-messenger"
+name = "Яндекс Мессенджер Bot API"
+aliases = ["яндекс мессенджер", "yandex messenger", "бот яндекс 360"]
+description = "Bot API Яндекс Мессенджера (Яндекс 360): отправка сообщений, файлы, getUpdates, вебхуки, кнопки"
+homepage = "https://yandex.ru/dev/messenger/doc/ru/"
+license = "документация ООО «Яндекс»; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  crawl = "https://yandex.ru/dev/messenger/doc/ru/"
+  prefix = "https://yandex.ru/dev/messenger/doc/ru/"
+  max_pages = 120
+  selector = "main, article"
+
+# ---------- 1С ----------
+
+[[library]]
+id = "1c-ssl"
+name = "1С: Библиотека стандартных подсистем (БСП 3.2)"
+aliases = ["бсп", "1с", "1c", "ssl", "общего назначения", "библиотека стандартных подсистем"]
+description = "Программный интерфейс общих модулей БСП 3.2: экспортные процедуры и функции с описанием параметров"
+homepage = "https://github.com/1c-syntax/ssl_3_2"
+license = "CC-BY-4.0, © 1С; зеркало 1c-syntax"
+  [[library.load]]
+  type = "github"
+  repo = "1c-syntax/ssl_3_2"
+  glob = ["src/cf/CommonModules/*/Ext/Module.bsl"]
+  mode = "bsl"
