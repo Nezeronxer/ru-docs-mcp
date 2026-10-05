@@ -12,3 +12,8 @@ wheels/
 # индекс собирается локально
 data/
 *.db
+
+# локальный граф graphify
+graphify-out/
+.gitattributes
+.pytest_cache/

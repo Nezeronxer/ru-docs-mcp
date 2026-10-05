@@ -1,3 +1,11 @@
+## Итерация 2 (2026-10-05) - план `~/.claude/plans/frolicking-sparking-music.md`
+- [x] 6 новых библиотек + ingest: yandex-pay, bitrix24, amocrm, dadata, smsru, gigachat (Почта - SPA, не берём). Яндекс Пэй и GigaChat - ещё и openapi-спеки; get_docs больше не отдаёт пусто, если первый фрагмент длиннее бюджета
+- [x] Грабли для 7 старых: robokassa, yoomoney, paykeeper, orangedata, atol-online, yandex-messenger, 1c-ssl
+- [x] Грабли для 6 новых (6 штук на библиотеку; 363 цитаты сверены с индексом и живыми страницами)
+- [x] Тесты: test_gotchas.py, test_server.py (+ _db() читает store.DB_PATH при вызове; get_gotchas при пустом поиске по теме отдаёт все)
+- [x] README, instructions сервера, скилл ru-docs, версия 0.2.0, .gitignore graphify-out
+- [ ] GitHub: gh auth login (пользователь) -> repo create --public -> push -> проверка uvx
+
 # ru-docs-mcp - чек-лист
 
 План: `~/.claude/plans/immutable-singing-mountain.md`

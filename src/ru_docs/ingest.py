@@ -158,7 +158,11 @@ async def load_html(src: dict) -> list[dict]:
 
 async def load_openapi(src: dict) -> list[dict]:
     async with _client() as c:
-        spec = yaml.safe_load((await fetch(c, src["spec"])).text)
+        text = (await fetch(c, src["spec"])).text
+    try:
+        spec = yaml.safe_load(text)
+    except yaml.YAMLError:  # у GigaChat табы в примерах - YAML их не прощает
+        spec = yaml.safe_load(text.replace("\t", "  "))
     url = src.get("docs_url", src["spec"])
     schemas = spec.get("components", {}).get("schemas", {})
     chunks = []

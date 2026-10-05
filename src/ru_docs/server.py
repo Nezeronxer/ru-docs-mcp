@@ -1,4 +1,4 @@
-"""MCP-сервер: документация российских платёжек, чеков 54-ФЗ, мессенджеров и 1С + грабли.
+"""MCP-сервер: документация российских платёжек, чеков 54-ФЗ, мессенджеров, CRM и 1С + грабли.
 
 Работает локально (stdio). Индекс лежит в ~/.local/share/ru-docs/; если его нет или он старше
 недели, сервер сам запускает сборку в фоне и отвечает по тому, что уже собрано.
@@ -18,7 +18,8 @@ mcp = MCPServer(
     "ru-docs",
     instructions=(
         "Документация российских сервисов: ЮKassa, ЮMoney, Т-Банк, CloudPayments, Robokassa, PayKeeper, "
-        "платежи в Telegram, АТОЛ Онлайн, OrangeData, МАКС, VK API, Яндекс Мессенджер, БСП 1С. "
+        "Яндекс Пэй, платежи в Telegram, АТОЛ Онлайн, OrangeData, МАКС, VK API, Яндекс Мессенджер, "
+        "Битрикс24, amoCRM, DaData, SMS.ru, GigaChat, БСП 1С. "
         "Перед кодом интеграции: resolve_library -> get_docs. Грабли в начале ответа get_docs - "
         "проверенные ловушки, их учитывать обязательно."
     ),
@@ -26,7 +27,7 @@ mcp = MCPServer(
 
 
 def _db():
-    return store.connect()
+    return store.connect(store.DB_PATH)  # путь читаем при вызове - тесты подменяют store.DB_PATH
 
 
 def _status_note(db) -> str:
@@ -100,7 +101,10 @@ def get_docs(library_id: str, topic: str, tokens: int = 5000) -> str:
             continue
         seen.add(key)
         block = _fmt(r)
-        if sum(map(len, parts)) + len(block) > budget:
+        room = budget - sum(map(len, parts))
+        if len(block) > room:
+            if len(seen) == 1:  # первый фрагмент длиннее бюджета - обрезать, а не отдать пусто
+                parts.append(block[:max(room, 1000)] + "\n…(обрезано, увеличьте tokens)\n")
             break
         parts.append(block)
     if len(parts) == 3 and not gotchas:
@@ -116,11 +120,14 @@ def get_gotchas(library_id: str, topic: str = "") -> str:
     lib, err = _lib_or_error(db, library_id)
     if err:
         return err
-    rows = (store.search(db, topic, lib=library_id, kind="gotcha", limit=10) if topic.strip() else
-            db.execute("SELECT * FROM chunks WHERE lib=? AND kind='gotcha' ORDER BY id", (library_id,)).fetchall())
+    rows = store.search(db, topic, lib=library_id, kind="gotcha", limit=10) if topic.strip() else []
+    note = ""
+    if not rows:  # граблей у библиотеки единицы - тема не совпала по словам, отдаём все
+        rows = db.execute("SELECT * FROM chunks WHERE lib=? AND kind='gotcha' ORDER BY id", (library_id,)).fetchall()
+        note = f"По теме «{topic}» точных совпадений нет, ниже все грабли.\n\n" if topic.strip() and rows else ""
     if not rows:
-        return f"Грабель по «{lib['name']}»{' на тему ' + topic if topic else ''} пока нет."
-    return "\n".join(_fmt(r) for r in rows)
+        return f"Грабель по «{lib['name']}» пока нет."
+    return note + "\n".join(_fmt(r) for r in rows)
 
 
 def _maybe_refresh() -> None:

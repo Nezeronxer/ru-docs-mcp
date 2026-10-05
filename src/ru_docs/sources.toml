@@ -188,3 +188,103 @@ license = "CC-BY-4.0, © 1С; зеркало 1c-syntax"
   repo = "1c-syntax/ssl_3_2"
   glob = ["src/cf/CommonModules/*/Ext/Module.bsl"]
   mode = "bsl"
+
+[[library]]
+id = "yandex-pay"
+name = "Яндекс Пэй (Yandex Pay)"
+aliases = ["яндекс пэй", "яндекс пей", "yandex pay", "сплит", "яндекс сплит"]
+description = "Yandex Pay Merchant API: создание заказа и платёжной ссылки, вебхуки (JWT), возвраты, отмена, Сплит, Web SDK, тестирование"
+homepage = "https://pay.yandex.ru/docs/ru/"
+license = "документация ООО «Яндекс»; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "openapi"
+  spec = "https://pay.yandex.ru/docs/ru/custom/backend/yandex-pay-api/yandex-pay-api-prod.openapi.json"
+  docs_url = "https://pay.yandex.ru/docs/ru/custom/backend/yandex-pay-api/"
+  [[library.load]]
+  type = "html"
+  crawl = "https://pay.yandex.ru/docs/ru/"
+  prefix = "https://pay.yandex.ru/docs/ru/"
+  # страницы спецификаций - сырой JSON, его берёт загрузчик openapi выше
+  exclude = ["/docs/ru/legal", "/backend/yandex-pay-api", "/backend/merchant-api", "/backend/cash-register"]
+  max_pages = 200
+  selector = "article, main"
+
+# ---------- CRM ----------
+
+[[library]]
+id = "bitrix24"
+name = "Битрикс24 REST API"
+aliases = ["битрикс", "битрикс24", "bitrix", "bitrix24", "b24", "crm битрикс"]
+description = "REST API Битрикс24: методы crm.*, tasks.*, user.*, вебхуки и приложения, OAuth, события, лимиты, batch"
+homepage = "https://apidocs.bitrix24.ru/"
+license = "репозиторий bitrix-tools/b24-rest-docs под MIT"
+  [[library.load]]
+  type = "github"
+  repo = "bitrix-tools/b24-rest-docs"
+  branch = "main"
+  glob = ["api-reference/*.md", "settings/*.md", "first-steps/*.md", "local-integrations/*.md", "limits.md", "error-codes.md"]
+  mode = "md"
+
+[[library]]
+id = "amocrm"
+name = "amoCRM API v4"
+aliases = ["амо", "амоцрм", "amocrm", "amo crm", "kommo"]
+description = "API amoCRM v4: сделки, контакты, компании, воронки, кастомные поля, вебхуки, OAuth 2.0 интеграции, лимиты"
+homepage = "https://www.amocrm.ru/developers/"
+license = "документация amoCRM; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  crawl = "https://www.amocrm.ru/developers/content/crm_platform/api-reference"
+  prefix = "https://www.amocrm.ru/developers/content/"
+  max_pages = 150
+  selector = "main"
+
+# ---------- данные, SMS, ИИ ----------
+
+[[library]]
+id = "dadata"
+name = "DaData"
+aliases = ["дадата", "dadata", "подсказки адресов", "поиск по инн", "стандартизация"]
+description = "DaData API: подсказки адресов, ФИО, организаций, поиск по ИНН/ОГРН, стандартизация, геокодирование, лимиты"
+homepage = "https://dadata.ru/api/"
+license = "документация ООО «Дадата»; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  crawl = "https://dadata.ru/api/"
+  prefix = "https://dadata.ru/api/"
+  max_pages = 80
+  selector = "article.module--documentation, article"
+
+[[library]]
+id = "smsru"
+name = "SMS.ru API"
+aliases = ["смс ру", "sms.ru", "smsru", "отправка смс", "звонок авторизация"]
+description = "SMS.ru HTTP API: отправка SMS, статусы, стоимость, авторизация звонком, баланс, callback-уведомления"
+homepage = "https://sms.ru/api"
+license = "документация SMS.ru; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "html"
+  crawl = "https://sms.ru/api"
+  prefix = "https://sms.ru/api"
+  max_pages = 40
+  selector = ".markdown-body"
+
+[[library]]
+id = "gigachat"
+name = "GigaChat API"
+aliases = ["гигачат", "gigachat", "сбер gigachat", "giga chat", "llm сбер"]
+description = "GigaChat API: OAuth-токен, chat/completions, потоковая генерация, функции, эмбеддинги, файлы, лимиты, сертификаты"
+homepage = "https://developers.sber.ru/docs/ru/gigachat/"
+license = "документация ПАО Сбербанк; фрагменты со ссылкой на оригинал"
+  [[library.load]]
+  type = "openapi"
+  spec = "https://developers.sber.ru/docs/files/openapi/gigachat/api.yml"
+  docs_url = "https://developers.sber.ru/docs/ru/gigachat/api/reference/rest/gigachat-api"
+  [[library.load]]
+  type = "html"
+  crawl = "https://developers.sber.ru/docs/ru/gigachat/api/main"
+  urls = ["https://developers.sber.ru/docs/ru/gigachat/guides/main", "https://developers.sber.ru/docs/ru/gigachat/certificates", "https://developers.sber.ru/docs/ru/gigachat/limitations"]
+  prefix = "https://developers.sber.ru/docs/ru/gigachat/"
+  exclude = ["/changelog", "/video-tutorials", "/legal"]
+  max_pages = 200
+  selector = "article, .theme-doc-markdown, main"
