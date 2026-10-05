@@ -10,7 +10,8 @@
 - [x] gotchas/: ЮKassa, Т-Банк, CloudPayments, МАКС, Telegram-оплата, 54-ФЗ - сверены с доками
 - [x] Живой тест через `claude mcp add` (локально, stdio)
 - [x] Скилл `ru-docs` в ~/.claude/skills (вне репо)
-- [x] git: первый коммит (автор Nezeronxer, без следов ИИ), риг `ru_docs_mcp`
+- [x] git: первый коммит (автор Nezeronxer, без следов ИИ)
+- [ ] риг `ru_docs_mcp` - на Arch нет gt, завести с мака
 - [ ] Публичный GitHub - СПРОСИТЬ
 - [ ] Dockerfile + деплой - СПРОСИТЬ сервер и домен
 - [ ] Ролик через /shorts-week - показать перед заливкой
