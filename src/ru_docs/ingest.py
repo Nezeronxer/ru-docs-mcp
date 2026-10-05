@@ -214,6 +214,8 @@ async def load_openapi(src: dict) -> list[dict]:
 async def load_pdf(src: dict) -> list[dict]:
     async with _client() as c:
         data = (await fetch(c, src["url"])).content
+    if not data.startswith(b"%PDF"):
+        raise RuntimeError(f"вместо PDF пришло {data[:15]!r} - сайт закрыт антиботом или файл переехал")
     text = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(data)).pages)
     # нумерованные заголовки «3.2 Регистрация чека» превращаем в markdown
     md = re.sub(r"^(\d+(?:\.\d+){0,2})\.?\s+([А-ЯЁA-Z][^\n]{3,90})$",
