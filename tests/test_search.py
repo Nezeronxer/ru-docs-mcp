@@ -16,3 +16,7 @@ def test_search_russian_wordforms(tmp_path):
     # повторная заливка заменяет, а не дублирует
     store.replace_library(db, lib, chunk_markdown(md, "https://example/p"))
     assert db.execute("SELECT count(*) FROM chunks").fetchone()[0] == len(chunk_markdown(md, "x"))
+
+
+def test_compound_name_also_searched_as_phrase():
+    assert store.fts_query("crm.deal.add оплата") == '"crm deal add" OR "crm" OR "deal" OR "add" OR "оплат"'

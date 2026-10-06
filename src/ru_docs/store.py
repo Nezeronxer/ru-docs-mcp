@@ -82,7 +82,9 @@ def replace_library(db, lib: dict, chunks: list[dict], kind: str = "doc") -> int
 
 def fts_query(text: str) -> str | None:
     terms = list(dict.fromkeys(stems(text)))
-    return " OR ".join(f'"{t}"' for t in terms) or None
+    # составное имя (crm.deal.add, Idempotence-Key) ещё и фразой - точный метод выше похожих
+    phrases = [" ".join(s) for w in text.split() if len(s := stems(w)) > 1]
+    return " OR ".join(f'"{t}"' for t in dict.fromkeys(phrases + terms)) or None
 
 
 def search(db, text: str, lib: str | None = None, kind: str | None = None, limit: int = 20) -> list[sqlite3.Row]:

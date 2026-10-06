@@ -17,3 +17,6 @@ data/
 graphify-out/
 .gitattributes
 .pytest_cache/
+
+# личный чек-лист
+TASK.md

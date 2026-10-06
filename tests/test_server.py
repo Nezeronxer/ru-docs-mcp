@@ -45,3 +45,8 @@ def test_get_gotchas():
     assert "SHA-256" in server.get_gotchas("tbank-eacq", "token")
     assert "точных совпадений нет" in server.get_gotchas("tbank-eacq", "холдирование")
     assert "пока нет" in server.get_gotchas("1c-ssl")
+
+
+def test_get_docs_nothing_found_hint():
+    assert "ничего не нашлось" in server.get_docs("tbank-eacq", "абракадабра")
+    assert "ничего не нашлось" not in server.get_docs("tbank-eacq", "копейки", tokens=1000)

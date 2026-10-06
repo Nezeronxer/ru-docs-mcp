@@ -43,7 +43,8 @@ def _lib_or_error(db, library_id: str):
     if row:
         return row, None
     ids = ", ".join(r["id"] for r in store.libraries(db))
-    return None, f"Нет библиотеки «{library_id}». {_status_note(db)} Доступны: {ids}. Найти id: resolve_library."
+    note = _status_note(db)
+    return None, f"Нет библиотеки «{library_id}». {note + ' ' if note else ''}Доступны: {ids}. Найти id: resolve_library."
 
 
 def _fmt(r) -> str:
@@ -95,6 +96,7 @@ def get_docs(library_id: str, topic: str, tokens: int = 5000) -> str:
         parts.append("## ⚠ Грабли по теме\n" + "\n".join(_fmt(r) for r in gotchas))
     seen = set()
     parts.append("## Документация")
+    docs_start = len(parts)
     for r in store.search(db, topic, lib=library_id, kind="doc", limit=40):
         key = (r["title"], r["body"][:200])
         if key in seen:
@@ -107,7 +109,7 @@ def get_docs(library_id: str, topic: str, tokens: int = 5000) -> str:
                 parts.append(block[:max(room, 1000)] + "\n…(обрезано, увеличьте tokens)\n")
             break
         parts.append(block)
-    if len(parts) == 3 and not gotchas:
+    if len(parts) == docs_start and not gotchas:
         parts.append("По этой теме ничего не нашлось - переформулируйте (синонимы, название метода, поле API).")
     return "\n".join(parts)
 
@@ -133,9 +135,11 @@ def get_gotchas(library_id: str, topic: str = "") -> str:
 def _maybe_refresh() -> None:
     """Нет индекса или он старше недели - пересобрать в фоне отдельным процессом."""
     db = _db()
-    row = db.execute("SELECT min(strftime('%s', updated)) FROM libraries").fetchone()[0]
+    # max, а не min: грабли обновляют дату всем библиотекам, а убранная из sources.toml осталась бы старой навсегда
+    row = db.execute("SELECT max(strftime('%s', updated)) FROM libraries").fetchone()[0]
     if row and time.time() - int(row) < REFRESH_DAYS * 86400:
         return
+    store.DATA.mkdir(parents=True, exist_ok=True)  # RU_DOCS_DB может лежать в другом каталоге
     lock = store.DATA / "ingest.lock"
     if lock.exists() and time.time() - lock.stat().st_mtime < 3600:
         return  # сборка уже идёт
