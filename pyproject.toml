@@ -1,6 +1,6 @@
 [project]
 name = "ru-docs"
-version = "0.2.0"
+version = "0.2.1"
 description = "MCP-сервер документации российских платёжек, чеков 54-ФЗ, мессенджеров, CRM и 1С - со слоем граблей"
 readme = "README.md"
 authors = [{ name = "Nezeronxer" }]

@@ -14,7 +14,7 @@ import tarfile
 import tempfile
 import tomllib
 from pathlib import Path
-from urllib.parse import urljoin, urldefrag
+from urllib.parse import urljoin, urldefrag, urlparse
 
 import httpx
 import yaml
@@ -164,7 +164,12 @@ async def load_openapi(src: dict) -> list[dict]:
     except yaml.YAMLError:  # у GigaChat табы в примерах - YAML их не прощает
         spec = yaml.safe_load(text.replace("\t", "  "))
     url = src.get("docs_url", src["spec"])
-    schemas = spec.get("components", {}).get("schemas", {})
+    comps = spec.get("components", {})
+    schemas, parameters = comps.get("schemas", {}), comps.get("parameters", {})
+    # путь в заголовке - как его вызывают: /payments у ЮKassa на деле /v3/payments
+    base = urlparse((spec.get("servers") or [{}])[0].get("url", "")).path.rstrip("/")
+    if "{" in base:
+        base = ""
     chunks = []
 
     def ref_name(s):
@@ -177,9 +182,19 @@ async def load_openapi(src: dict) -> list[dict]:
             return f"(схема {name})\n" + props(schemas.get(name, {}), depth + 1)
         lines, req = [], set(s.get("required", []))
         for k, v in (s.get("properties") or {}).items():
-            t = v.get("type") or ref_name(v) or ("|".join(ref_name(x) or x.get("type", "") for x in v.get("oneOf", v.get("anyOf", []))))
-            enum = f" [{', '.join(map(str, v['enum']))}]" if "enum" in v else ""
-            desc = (v.get("description") or v.get("title") or "").strip().replace("\n", " ")
+            v = v if isinstance(v, dict) else {}
+            # свойство через $ref или allOf[$ref] - тип, enum и описание лежат в целевой схеме
+            name = ref_name(v) or next((n for x in v.get("allOf", []) if (n := ref_name(x))), "")
+            target = schemas.get(name, {}) if name else {}
+            extra = [x for x in v.get("allOf", []) if isinstance(x, dict) and not ref_name(x)]
+            t = v.get("type") or ("|".join(ref_name(x) or x.get("type", "") for x in v.get("oneOf", v.get("anyOf", []))))
+            if name:
+                t = f"{target['type']}, схема {name}" if target.get("type") and target.get("type") != "object" else name
+            enum = v.get("enum") or target.get("enum")
+            enum = f" [{', '.join(map(str, enum))}]" if enum else ""
+            desc = next((d for d in [v.get("description"), *(x.get("description") for x in extra),
+                                     v.get("title"), target.get("description")] if d), "")
+            desc = desc.strip().replace("\n", " ")
             lines.append(f"- `{k}` {t}{' **обяз.**' if k in req else ''}{enum} — {desc}")
         for key in ("allOf", "oneOf", "anyOf"):
             for x in s.get(key, []):
@@ -196,7 +211,7 @@ async def load_openapi(src: dict) -> list[dict]:
             if params:
                 body.append("Параметры:")
                 for p in params:
-                    p = schemas.get(ref_name(p), p) if ref_name(p) else p
+                    p = parameters.get(ref_name(p), p) if ref_name(p) else p
                     body.append(f"- `{p.get('name')}` ({p.get('in')}){' **обяз.**' if p.get('required') else ''} — "
                                 f"{(p.get('description') or '').strip()}")
             for ct, media in (op.get("requestBody", {}).get("content") or {}).items():
@@ -205,7 +220,7 @@ async def load_openapi(src: dict) -> list[dict]:
                 sch = next(iter((resp.get("content") or {}).values()), {}).get("schema", {}) if isinstance(resp, dict) else {}
                 body.append(f"Ответ {code}: {resp.get('description', '') if isinstance(resp, dict) else ''} "
                             f"{('схема ' + ref_name(sch)) if ref_name(sch) else ''}")
-            title = f"{method.upper()} {path} — {op.get('summary') or op.get('operationId', '')}"
+            title = f"{method.upper()} {base}{path} — {op.get('summary') or op.get('operationId', '')}"
             chunks += [{"title": title, "url": url, "body": b} for b in _split("\n".join(filter(None, body)))]
 
     for name, s in schemas.items():
@@ -249,6 +264,9 @@ async def load_github(src: dict) -> list[dict]:
 
 
 def _gh_md(text, rel, url):
+    # разметка YFM (Битрикс24): {% include %}, {% list tabs %} и навигация [{#T}](...) - без текста, только шум
+    text = re.sub(r"^\s*- \[\{#T\}\]\([^)]*\)\s*$", "", text, flags=re.M)
+    text = re.sub(r"\{%.*?%\}", "", text)
     return chunk_markdown(text, url, prefix=rel)
 
 

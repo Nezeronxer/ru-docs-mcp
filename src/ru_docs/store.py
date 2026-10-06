@@ -100,9 +100,15 @@ def search(db, text: str, lib: str | None = None, kind: str | None = None, limit
     if kind:
         sql += " AND c.kind = ?"
         args.append(kind)
+    # идентификатор из запроса (crm.deal.add, /v3/payments) в заголовке - выше: bm25 штрафует длинные
+    # таблицы полей, и короткие соседние фрагменты («Обработка ошибок») иначе их вытесняют
+    ids = [w.lower().strip(".,;:()«»\"'") for w in text.split() if re.search(r"\w[./_]\w", w)]
     sql += " ORDER BY rank LIMIT ?"
-    args.append(limit)
-    return db.execute(sql, args).fetchall()
+    args.append(limit * 3 if ids else limit)
+    rows = db.execute(sql, args).fetchall()
+    if ids:
+        rows.sort(key=lambda r: not any(i in r["title"].lower() for i in ids))  # sort стабильный - bm25 внутри групп
+    return rows[:limit]
 
 
 def libraries(db) -> list[sqlite3.Row]:

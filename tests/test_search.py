@@ -20,3 +20,12 @@ def test_search_russian_wordforms(tmp_path):
 
 def test_compound_name_also_searched_as_phrase():
     assert store.fts_query("crm.deal.add оплата") == '"crm deal add" OR "crm" OR "deal" OR "add" OR "оплат"'
+
+
+def test_identifier_in_title_beats_short_neighbours(tmp_path):
+    db = store.connect(tmp_path / "t.db")
+    lib = {"id": "b24", "name": "Б24", "aliases": [], "description": "", "homepage": "", "license": ""}
+    md = ("# Создать шаблон crm.deal.recurring.add\n\nОшибка: deal add не найден, повторите crm deal add позже.\n\n"
+          "# Создать сделку crm.deal.add\n\n" + "Поле TITLE задаёт название сделки, OPPORTUNITY сумму. " * 30)
+    store.replace_library(db, lib, chunk_markdown(md, "u"))
+    assert store.search(db, "crm.deal.add", lib="b24")[0]["title"] == "Создать сделку crm.deal.add"
